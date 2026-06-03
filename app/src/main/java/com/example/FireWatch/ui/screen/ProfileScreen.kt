@@ -33,7 +33,6 @@ fun ProfileScreen(onNavigateBack: () -> Unit, onLogout: () -> Unit) {
         AgroHeader(title = "Meu Perfil", onBackClick = onNavigateBack)
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Avatar com ícone de câmera
         Box(contentAlignment = Alignment.BottomEnd) {
             Surface(shape = CircleShape, color = AppColors.Primary, modifier = Modifier.size(100.dp)) {
                 Box(contentAlignment = Alignment.Center) {

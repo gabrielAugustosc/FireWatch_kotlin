@@ -13,7 +13,6 @@ import kotlinx.coroutines.launch
 
 class FireViewModel : ViewModel() {
 
-    // Instancia o seu service (a conexão com o mundo exterior)
     private val fireService = FireService()
 
     // 1. Estados que a Tela (View) vai "observar"
@@ -26,13 +25,12 @@ class FireViewModel : ViewModel() {
     private val _minhaLocalizacao = mutableStateOf(LatLng(-15.7939, -47.8828))
     val minhaLocalizacao: State<LatLng> = _minhaLocalizacao
 
-    // 2. Assim que o ViewModel nasce, ele já manda buscar os dados do INPE
     init {
         buscarFocosDoInpe()
     }
 
     private fun buscarFocosDoInpe() {
-        // viewModelScope garante que essa thread em background morra se o app for fechado
+
         viewModelScope.launch {
             _isLoadingApi.value = true
             _fireHotspots.value = fireService.getFocosDeIncendioDoInpe()
@@ -40,7 +38,6 @@ class FireViewModel : ViewModel() {
         }
     }
 
-    // 3. Funções para a Tela atualizar os dados
     fun atualizarLocalizacao(novaLat: Double, novaLon: Double) {
         _minhaLocalizacao.value = LatLng(novaLat, novaLon)
     }

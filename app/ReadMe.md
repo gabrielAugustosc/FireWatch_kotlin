@@ -47,3 +47,8 @@ Ao clicar em qualquer foco de incêndio no mapa, os demais pinos perdem opacidad
 
 ### 5. Gerenciamento de Perfil
 Ao clicar na foto de perfil, terá as opções para alterar a foto, nome, email e senha.
+
+👨‍💻 Desenvolvedores
+[Gabriel Augusto Silva Cavalcante] - RM: [557767]
+
+[Fabio Henrique de Godoi Nardella] - RM: [555537]

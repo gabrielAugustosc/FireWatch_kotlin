@@ -28,8 +28,14 @@ O projeto foi organizado para garantir escalabilidade e boas práticas de desenv
 
 ## 5. Fluxo de Navegação
 1. **Login:** Acesso inicial do usuário.
-2. **Dashboard (Monitoring):** Visualização do mapa interativo com os focos detectados.
-3. **Perfil:** Visualização de informações do usuário.
-
+![inicio.png](images/inicio.png)
+2. **Cadastro:** Cadastro para novos usuários
+![cadastro.png](images/cadastro.png)
+3. **Dashboard (Monitoring):** Visualização do mapa interativo com os focos detectados.
+![monitoramento.png](images/monitoramento.png)![cardAviso.png](images/cardAviso.png)
 ---
 *Projeto desenvolvido para a Global Solution - Indústria Espacial.*
+
+Desenvolvedores:
+Gabriel Augusto Silva Cavalcante RM557767
+Fabio Henrique de Godoi Nardella RM555537

@@ -39,7 +39,7 @@ fun LoginScreen(onLoginClick: () -> Unit, onNavigateToSignUp: () -> Unit) {
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Chamada do nosso componente de botão agora funcional
+
         AgroPrimaryButton(text = "Entrar", onClick = onLoginClick)
 
         Spacer(modifier = Modifier.height(32.dp))
@@ -52,7 +52,7 @@ fun LoginScreen(onLoginClick: () -> Unit, onNavigateToSignUp: () -> Unit) {
     }
 }
 
-// Componente do botão preenchido com o layout
+
 @Composable
 fun AgroPrimaryButton(text: String, onClick: () -> Unit) {
     Button(

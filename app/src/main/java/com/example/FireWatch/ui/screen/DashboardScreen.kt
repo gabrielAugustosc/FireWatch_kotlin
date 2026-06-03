@@ -75,7 +75,7 @@ fun DashboardScreen(
     val minhaLocalizacao by viewModel.minhaLocalizacao
     val fireHotspots by viewModel.fireHotspots
 
-    // Estados para os TextFields de coordenada
+
     var inputLat by remember(minhaLocalizacao) { mutableStateOf(minhaLocalizacao.latitude.toString()) }
     var inputLon by remember(minhaLocalizacao) { mutableStateOf(minhaLocalizacao.longitude.toString()) }
 
@@ -83,7 +83,7 @@ fun DashboardScreen(
 
     Column(modifier = Modifier.fillMaxSize().background(Color.White).padding(16.dp)) {
 
-        // --- CABEÇALHO ---
+
         Row(modifier = Modifier.fillMaxWidth().padding(top = 16.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
             Text("Monitoramento Global", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = AppColors.TextDark)
             Surface(shape = CircleShape, color = AppColors.Primary, modifier = Modifier.size(40.dp).clickable { onNavigateToProfile() }) {
@@ -93,10 +93,10 @@ fun DashboardScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // --- PAINEL DE INSERÇÃO DE COORDENADAS ---
+
         Surface(
             shape = RoundedCornerShape(12.dp),
-            color = Color(0xFFF8F9FA), // Fundo levemente cinza
+            color = Color(0xFFF8F9FA),
             border = BorderStroke(1.dp, Color(0xFFE0E0E0)),
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -140,14 +140,13 @@ fun DashboardScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // --- MAPA ---
         Box(modifier = Modifier.fillMaxWidth().weight(1f).clip(RoundedCornerShape(16.dp)).border(1.dp, AppColors.Border, RoundedCornerShape(16.dp))) {
             GoogleMap(
                 modifier = Modifier.fillMaxSize(),
                 cameraPositionState = cameraPositionState,
                 onMapClick = { focoSelecionado = null }
             ) {
-                // Pino do Usuário
+
                 Marker(
                     state = MarkerState(position = minhaLocalizacao),
                     title = "Minha Propriedade",
@@ -155,7 +154,7 @@ fun DashboardScreen(
                     zIndex = 2f
                 )
 
-                // Pinos de Focos de Incêndio
+
                 fireHotspots.forEach { foco ->
                     val corPino = when (foco.severidade) {
                         Severidade.BAIXO -> BitmapDescriptorFactory.HUE_YELLOW
@@ -181,7 +180,7 @@ fun DashboardScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // --- CARD DE ANÁLISE DE RISCO ---
+
         if (focoSelecionado != null) {
             val dist = calcularDistanciaKm(minhaLocalizacao.latitude, minhaLocalizacao.longitude, focoSelecionado!!.localizacao.latitude, focoSelecionado!!.localizacao.longitude)
             val corDestaque = when(focoSelecionado!!.severidade) {
@@ -209,7 +208,7 @@ fun DashboardScreen(
             }
         }
 
-        // --- BOTÃO DE EMERGÊNCIA ---
+
         Button(
             onClick = { /* Lógica Bombeiros */ },
             modifier = Modifier.fillMaxWidth().height(55.dp),
