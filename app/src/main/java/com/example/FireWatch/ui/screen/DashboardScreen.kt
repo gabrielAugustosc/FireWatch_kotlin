@@ -34,6 +34,7 @@ import com.globalSolution.FireWatch.viewModel.FireViewModel
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
@@ -75,14 +76,12 @@ fun DashboardScreen(
     val minhaLocalizacao by viewModel.minhaLocalizacao
     val fireHotspots by viewModel.fireHotspots
 
-
     var inputLat by remember(minhaLocalizacao) { mutableStateOf(minhaLocalizacao.latitude.toString()) }
     var inputLon by remember(minhaLocalizacao) { mutableStateOf(minhaLocalizacao.longitude.toString()) }
 
     val cameraPositionState = rememberCameraPositionState { position = CameraPosition.fromLatLngZoom(minhaLocalizacao, 5.5f) }
 
     Column(modifier = Modifier.fillMaxSize().background(Color.White).padding(16.dp)) {
-
 
         Row(modifier = Modifier.fillMaxWidth().padding(top = 16.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
             Text("Monitoramento Global", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = AppColors.TextDark)
@@ -93,47 +92,23 @@ fun DashboardScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-
-        Surface(
-            shape = RoundedCornerShape(12.dp),
-            color = Color(0xFFF8F9FA),
-            border = BorderStroke(1.dp, Color(0xFFE0E0E0)),
-            modifier = Modifier.fillMaxWidth()
-        ) {
+        Surface(shape = RoundedCornerShape(12.dp), color = Color(0xFFF8F9FA), border = BorderStroke(1.dp, Color(0xFFE0E0E0)), modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.padding(12.dp)) {
                 Text("Minha Localização (Lat / Lon)", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = Color.Gray)
-                Spacer(modifier = Modifier.height(8.dp))
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedTextField(
-                        value = inputLat,
-                        onValueChange = { inputLat = it },
-                        label = { Text("Latitude", fontSize = 10.sp) },
-                        modifier = Modifier.weight(1f),
-                        singleLine = true
-                    )
-                    OutlinedTextField(
-                        value = inputLon,
-                        onValueChange = { inputLon = it },
-                        label = { Text("Longitude", fontSize = 10.sp) },
-                        modifier = Modifier.weight(1f),
-                        singleLine = true
-                    )
+                    OutlinedTextField(value = inputLat, onValueChange = { inputLat = it }, label = { Text("Latitude", fontSize = 10.sp) }, modifier = Modifier.weight(1f), singleLine = true)
+                    OutlinedTextField(value = inputLon, onValueChange = { inputLon = it }, label = { Text("Longitude", fontSize = 10.sp) }, modifier = Modifier.weight(1f), singleLine = true)
                     IconButton(
                         onClick = {
                             val lat = inputLat.toDoubleOrNull()
                             val lon = inputLon.toDoubleOrNull()
                             if (lat != null && lon != null) {
                                 viewModel.atualizarLocalizacao(lat, lon)
-                                // Move a câmera para a nova localização
-                                cameraPositionState.position = CameraPosition.fromLatLngZoom(minhaLocalizacao, 5.5f)
+                                cameraPositionState.position = CameraPosition.fromLatLngZoom(LatLng(lat, lon), 5.5f)
                             }
                         },
-                        modifier = Modifier
-                            .background(AppColors.Primary, RoundedCornerShape(8.dp))
-                            .size(56.dp)
-                    ) {
-                        Icon(Icons.Default.MyLocation, contentDescription = "Atualizar Localização", tint = Color.White)
-                    }
+                        modifier = Modifier.background(AppColors.Primary, RoundedCornerShape(8.dp)).size(56.dp)
+                    ) { Icon(Icons.Default.MyLocation, null, tint = Color.White) }
                 }
             }
         }
@@ -144,34 +119,23 @@ fun DashboardScreen(
             GoogleMap(
                 modifier = Modifier.fillMaxSize(),
                 cameraPositionState = cameraPositionState,
-                onMapClick = { focoSelecionado = null }
+                onMapClick = { focoSelecionado = null },
+                onMapLongClick = { novaCoordenada ->
+                    viewModel.atualizarLocalizacao(novaCoordenada.latitude, novaCoordenada.longitude)
+                    inputLat = novaCoordenada.latitude.toString()
+                    inputLon = novaCoordenada.longitude.toString()
+                }
             ) {
-
-                Marker(
-                    state = MarkerState(position = minhaLocalizacao),
-                    title = "Minha Propriedade",
-                    icon = personIcon ?: BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE),
-                    zIndex = 2f
-                )
-
+                Marker(state = MarkerState(position = minhaLocalizacao), title = "Minha Propriedade", icon = personIcon ?: BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE), zIndex = 2f)
 
                 fireHotspots.forEach { foco ->
-                    val corPino = when (foco.severidade) {
-                        Severidade.BAIXO -> BitmapDescriptorFactory.HUE_YELLOW
-                        Severidade.MEDIO -> BitmapDescriptorFactory.HUE_ORANGE
-                        Severidade.CRITICO -> BitmapDescriptorFactory.HUE_RED
-                    }
-
                     val isSelected = focoSelecionado == foco
-                    val markerAlpha = if (focoSelecionado == null || isSelected) 1.0f else 0.4f
-                    val zIndex = if (isSelected) 1f else 0f
-
                     Marker(
                         state = MarkerState(position = foco.localizacao),
                         title = "Foco: ${foco.severidade}",
-                        icon = BitmapDescriptorFactory.defaultMarker(corPino),
-                        alpha = markerAlpha,
-                        zIndex = zIndex,
+                        icon = BitmapDescriptorFactory.defaultMarker(when(foco.severidade) { Severidade.BAIXO -> BitmapDescriptorFactory.HUE_YELLOW; Severidade.MEDIO -> BitmapDescriptorFactory.HUE_ORANGE; else -> BitmapDescriptorFactory.HUE_RED }),
+                        alpha = if (focoSelecionado == null || isSelected) 1.0f else 0.4f,
+                        zIndex = if (isSelected) 1f else 0f,
                         onClick = { focoSelecionado = foco; true }
                     )
                 }
@@ -180,46 +144,25 @@ fun DashboardScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-
         if (focoSelecionado != null) {
             val dist = calcularDistanciaKm(minhaLocalizacao.latitude, minhaLocalizacao.longitude, focoSelecionado!!.localizacao.latitude, focoSelecionado!!.localizacao.longitude)
-            val corDestaque = when(focoSelecionado!!.severidade) {
-                Severidade.CRITICO -> Color(0xFFC0392B)
-                Severidade.MEDIO -> Color(0xFFF39C12)
-                else -> Color(0xFF27AE60)
-            }
+            val tempoEstimado = dist / 1.5 // Simulação: 1.5 km/h de propagação
 
-            Card(
-                modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
-                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-                border = BorderStroke(2.dp, corDestaque)
-            ) {
+            Card(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp), colors = CardDefaults.cardColors(containerColor = Color.White), elevation = CardDefaults.cardElevation(8.dp), border = BorderStroke(2.dp, Color.Red)) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Default.LocalFireDepartment, null, tint = corDestaque)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("Análise de Risco", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    Text("Distância: ${String.format(Locale.US, "%.1f", dist)} km", fontWeight = FontWeight.Bold)
+                    Text("Severidade: ${focoSelecionado!!.severidade}")
+                    if (dist < 100.0) {
+                        Text("Tempo estimado p/ chegar: ~${String.format(Locale.US, "%.1f", tempoEstimado)}h", color = Color.Red, fontWeight = FontWeight.ExtraBold)
                     }
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text("Distância: ${String.format(Locale.US, "%.1f", dist)} km", fontSize = 14.sp)
-                    Text("Severidade: ${focoSelecionado!!.severidade}", color = corDestaque, fontWeight = FontWeight.ExtraBold)
                 }
             }
         }
 
-
-        Button(
-            onClick = { /* Lógica Bombeiros */ },
-            modifier = Modifier.fillMaxWidth().height(55.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFC0392B)),
-            shape = RoundedCornerShape(12.dp)
-        ) {
+        Button(onClick = { }, modifier = Modifier.fillMaxWidth().height(55.dp), colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFC0392B)), shape = RoundedCornerShape(12.dp)) {
             Icon(Icons.Default.Call, null)
             Spacer(modifier = Modifier.width(8.dp))
             Text("Ligar para Bombeiros (193)", fontSize = 16.sp)
         }
-
-        Spacer(modifier = Modifier.height(8.dp))
     }
 }
